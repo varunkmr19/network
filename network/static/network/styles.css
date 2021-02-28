@@ -1,0 +1,32 @@
+.card{
+  width:auto; 
+  margin:6px;
+}
+
+.card-text{
+  font-size: 1.5rem;
+  font: monospace;
+  color:black;
+}
+
+.like {
+  display: inline;
+  color: #00000030;
+  padding: 0;
+}
+
+.like:hover {
+  color: red;
+}
+
+.liked {
+  color: red;
+}
+
+.liked:hover {
+  color: #00000030;
+}
+
+.likesCount {
+  margin-left: 0.1rem;
+}

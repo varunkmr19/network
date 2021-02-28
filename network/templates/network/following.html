@@ -1,0 +1,42 @@
+{% extends "network/layout.html" %}
+{% load static %}
+
+{% block body %}
+
+<div class="container">
+    {% if error %}
+        <div class="alert alert-danger" role="alert">{{ error }}</div>
+    {% else %}
+        {% for post in page_obj %}
+            <div class="card border-secondary mb-3">
+                <h5 class="card-header"><a href="{% url 'profile' username=post.poster %}">{{ post.poster }}</a></h5>
+                <div class="card-body text-secondary">
+                    <h6 class="card-subtitle mb-2 text-muted">{{ post.timestamp }}</h6>
+                    <p class="card-text">{{ post.content }}</p>
+
+                    {% if user.is_authenticated %}
+                        {% if request.user in post.likes.all %}
+                            <a href="{% url 'likeToggle' post_id=post.id %}" style="text-decoration:none;" class="like liked">
+                                <i class="fa fa-heart"></i>
+                                <span class="likesCount">{{ post.likes.all.count }}</span>
+                            </a>
+                        {% else %}
+                            <a href="{% url 'likeToggle' post_id=post.id %}" style="text-decoration:none;" class="like">
+                                <i class="fa fa-heart"></i>
+                                <span class="likesCount">{{ post.likes.all.count }}</span>
+                            </a>
+                        {% endif %}
+
+                    {% endif %}
+
+                </div>
+            </div>
+        {% endfor %}
+    {% endif %}
+</div>
+
+{% endblock %}
+
+{% block script %}
+    <script src="{% static 'network/index.js' %}"></script>
+{% endblock %}

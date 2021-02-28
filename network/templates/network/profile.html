@@ -1,0 +1,115 @@
+{% extends "network/layout.html" %}
+{% load static %}
+
+{% block body %}
+
+    <div class="container">
+        <div class="row">
+            <div class="col-md-4">
+                <!-- display user info -->
+                <div class="card border-dark mb-3">
+                    <div class="card-header">{{ userInfo.username }}</div>
+                    <div class="card-body text-dark">
+                        <p class="card-text">
+                            Followers: <span id="followerCount">{{ followerCount }}</span>
+                        </p>
+                        <p class="card-text">
+                            Following: <span id="followingCount">{{ followingCount }}</span>
+                        </p>
+                        {% ifnotequal request.user.username userInfo.username %}
+                            {% if follows == True %}
+                                <!-- Display Unfollow button -->
+                                <button data-value="{% url 'followToggle' user_id=userInfo.id %}" class="btn btn-success followButton">Following</button>
+                            {% else %}
+                                <!-- Display follow button -->
+                                <button data-value="{% url 'followToggle' user_id=userInfo.id %}" class="btn btn-primary followButton">Follow</button>
+                            {% endif %}
+                        {% endifnotequal %}
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-8">
+                <!-- display posts -->
+                {% for post in page_obj %}
+                    <div class="card border-secondary mb-3">
+                        <h5 class="card-header"><a href="{% url 'profile' username=post.poster %}">{{ post.poster }}</a></h5>
+                        <div class="card-body text-secondary">
+                            <h6 class="card-subtitle mb-2 text-muted">{{ post.timestamp }}</h6>
+                            <p class="card-text">{{ post.content }}</p>
+                            {% if request.user == post.poster %}
+                                <p class="total-likes">Likes: {{post.likes.all.count}}</p>
+                                <!-- Edit Button-->
+                                <button type="button" class="btn btn-primary" data-toggle="modal" data-target="#edit">Edit</button>
+                                <!-- Delete Button-->
+                                <button type="button" class="btn btn-danger" data-toggle="modal" data-target="#delete">Delete</button>
+                            {% elif request.user in post.likes.all %}
+                                <a href="{% url 'likeToggle' post_id=post.id %}" style="text-decoration:none;" class="like liked">
+                                    <i class="fa fa-heart"></i>
+                                    <span class="likesCount">{{ post.likes.all.count }}</span>
+                                </a>
+                            {% else %}
+                                <a href="{% url 'likeToggle' post_id=post.id %}" style="text-decoration:none;" class="like">
+                                    <i class="fa fa-heart"></i>
+                                    <span class="likesCount">{{ post.likes.all.count }}</span>
+                                </a>
+                            {% endif %}
+                        </div>
+                    </div>
+
+                    <!-- Modal DELETE -->
+                    <div class="modal fade" id="delete" tabindex="-1" role="dialog" aria-labelledby="exampleModalCenterTitle" aria-hidden="true">
+                        <div class="modal-dialog modal-dialog" role="document">
+                            <div class="modal-content new-post-content">
+                            <div class="modal-header">
+                                <h5 class="modal-title" id="exampleModalLongTitle">Delete Post</h5>
+                                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                                <span aria-hidden="true">&times;</span>
+                                </button>
+                            </div>
+                            <div class="modal-body">
+                                <p>Are you sure you want to delete this post?</p>
+                                    <div class="modal-footer">
+                                        <form method="POST" action="{% url 'deletePost' post_id=post.id %}">
+                                            {% csrf_token %}
+                                            <button class="btn btn-outline-danger save" type="submit" value="Delete"></i>Delete</button>
+                                        </form>
+                                    </div>
+                                
+                            </div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <!-- Modal EDIT -->
+                    <div class="modal fade" id="edit" tabindex="-1" role="dialog" aria-labelledby="exampleModalCenterTitle" aria-hidden="true">
+                        <div class="modal-dialog modal-dialog-centered" role="document">
+                            <div class="modal-content new-post-content">
+                                <div class="modal-header">
+                                    <h5 class="modal-title" id="exampleModalLongTitle">Edit Post</h5>
+                                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                                        <span aria-hidden="true">&times;</span>
+                                    </button>
+                                </div>
+                                <div class="modal-body">
+                                    <form method="POST" action="{% url 'editPost' post_id=post.id %}">
+                                        {% csrf_token %}
+                                        <textarea rows="10" class="form-control" name="textarea">{{ post.content }}</textarea>
+                                        <br>
+                                        <div class="modal-footer">
+                                            <button class="btn btn-outline-dark save" type="submit" value="Save"></i>Edit</button>
+                                        </div>
+                                    </form>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                {% endfor %}
+            </div>
+        </div>
+    </div>
+    
+{% endblock %}
+
+{% block script %}
+    <script src="{% static 'network/index.js' %}"></script>
+{% endblock %}
